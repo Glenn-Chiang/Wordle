@@ -121,7 +121,18 @@ export default function App() {
     return () => document.removeEventListener("keydown", handleKeydown);
   }, [cursor, handleBackspace, handleEnter, won]);
 
-  const handleReveal = () => {};
+  const handleReveal = () => {
+    setWords(prevWords => {
+      const newWords = prevWords.slice()
+      newWords[cursor[0]] = answer.split('')
+      return newWords
+    })
+    setGradeHistory(prevGradeHistory => {
+      const newGradeHistory = prevGradeHistory.slice()
+      newGradeHistory[cursor[0]] = Array.from({length: 5}, () => 3)
+      return newGradeHistory
+    })
+  };
 
   return (
     <main className="flex flex-col items-center">

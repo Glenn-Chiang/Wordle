@@ -25,9 +25,16 @@ export default function Cell({ rowId, colId, letter, grade }: props) {
     setCursor([rowId, colId]);
   };
 
-  const gradeColors = ["bg-slate-400", "bg-yellow-500", "bg-green-500"];
+  const gradeColors = [
+    "bg-slate-400",
+    "bg-yellow-500",
+    "bg-green-500",
+    "bg-sky-500",
+  ];
   const color =
-    grade !== null ? gradeColors[grade] : `bg-slate-100 text-slate-600 ${letter && 'border-2 border-slate-400'}`;
+    grade !== null
+      ? gradeColors[grade]
+      : `bg-slate-100 text-slate-600 ${letter && "border-2 border-slate-400"}`;
 
   return (
     <div
