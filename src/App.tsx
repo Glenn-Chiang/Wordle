@@ -4,6 +4,8 @@ import { CursorState, CursorContext, Position } from "./contexts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { faUnlock } from "@fortawesome/free-solid-svg-icons/faUnlock";
+import { faTrophy } from "@fortawesome/free-solid-svg-icons/faTrophy";
+import { faX } from "@fortawesome/free-solid-svg-icons/faX";
 
 export default function App() {
   const answer = "REACT";
@@ -14,10 +16,15 @@ export default function App() {
   const initialGrades = Array.from({ length: 6 }, () =>
     Array.from({ length: 5 }, () => null)
   );
+
   const [words, setWords] = useState(initialWords);
+
   const [gradeHistory, setGradeHistory] =
     useState<(number | null)[][]>(initialGrades);
   const [cursor, setCursor] = useState<Position>([0, 0]);
+
+  const [won, setWon] = useState(false);
+  const [modalIsVisible, setModalIsVisible] = useState(false);
 
   const handleBackspace = useCallback(() => {
     const currentLetter = words[cursor[0]][cursor[1]];
@@ -52,6 +59,12 @@ export default function App() {
     }
 
     const grades = evaluateGuess(currentWord, answer);
+    const guessIsCorrect = grades.every((grade) => grade === 2);
+    if (guessIsCorrect) {
+      setWon(true);
+      setModalIsVisible(true);
+    }
+
     setGradeHistory((prevGradeHistory) => {
       const newGradeHistory = prevGradeHistory.slice();
       newGradeHistory[cursor[0]] = grades;
@@ -120,8 +133,38 @@ export default function App() {
           </section>
           <Grid words={words} gradeHistory={gradeHistory} />
         </section>
+        {modalIsVisible && (
+          <WinModal answer={answer} close={() => setModalIsVisible(false)} />
+        )}
       </CursorContext.Provider>
     </main>
+  );
+}
+
+type WinModalProps = {
+  answer: string;
+  close: () => void;
+};
+
+function WinModal({ answer, close }: WinModalProps) {
+  return (
+    <div className="w-screen h-screen fixed z-10 left-0 top-0 bg-teal-500/40 flex justify-center items-center">
+      <section className="bg-white rounded-xl p-4 w-1/2 flex flex-col items-center relative">
+        <h1 className="text-2xl flex items-center gap-2 text-teal-500">
+          <FontAwesomeIcon icon={faTrophy} />
+          You Win!
+        </h1>
+        <FontAwesomeIcon
+          onClick={close}
+          icon={faX}
+          className="absolute right-4"
+        />
+        <div className="p-2 text-center">
+          <p>Answer</p>
+          <p className="text-2xl">{answer}</p>
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -192,12 +235,13 @@ function Cell({ rowId, colId, letter, grade }: CellProps) {
   };
 
   const gradeColors = ["bg-slate-400", "bg-yellow-500", "bg-green-500"];
-  const gradeColor = grade !== null ? gradeColors[grade] : "bg-slate-100";
+  const gradeColor =
+    grade !== null ? gradeColors[grade] : "bg-slate-100 text-slate-600";
 
   return (
     <div
       onClick={handleClick}
-      className={`font-semibold text-xl rounded-md shadow w-20 h-20 flex justify-center items-center ${
+      className={`text-white font-semibold text-2xl rounded-md shadow w-20 h-20 flex justify-center items-center ${
         isFocused && "shadow-slate-400 shadow-md"
       } ${isCurrentRow && "hover:shadow-slate-400 hover:shadow-md"} 
       ${gradeColor}`}
