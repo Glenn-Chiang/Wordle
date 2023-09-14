@@ -12,7 +12,6 @@ export default function Cell({ rowId, colId, letter, grade }: props) {
   const { cursor, setCursor } = useContext(CursorContext) as CursorState;
   const isFocused = cursor[0] === rowId && cursor[1] === colId;
   const isCurrentRow = cursor[0] === rowId;
-
   const playerHasWon = useContext(WonContext);
 
   const handleClick = () => {
@@ -27,8 +26,8 @@ export default function Cell({ rowId, colId, letter, grade }: props) {
   };
 
   const gradeColors = ["bg-slate-400", "bg-yellow-500", "bg-green-500"];
-  const gradeColor =
-    grade !== null ? gradeColors[grade] : "bg-slate-100 text-slate-600";
+  const color =
+    grade !== null ? gradeColors[grade] : `bg-slate-100 text-slate-600 ${letter && 'border-2 border-slate-400'}`;
 
   return (
     <div
@@ -36,7 +35,7 @@ export default function Cell({ rowId, colId, letter, grade }: props) {
       className={`text-white font-semibold text-2xl rounded-md shadow w-20 h-20 flex justify-center items-center ${
         isFocused && "shadow-slate-400 shadow-md"
       } ${isCurrentRow && "hover:shadow-slate-400 hover:shadow-md"} 
-      ${gradeColor}`}
+      ${color}`}
     >
       {letter}
     </div>
