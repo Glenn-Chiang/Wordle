@@ -1,6 +1,9 @@
 import { useState, useContext, useEffect, useCallback } from "react";
 import { evaluateGuess } from "./mechanics";
 import { CursorState, CursorContext, Position } from "./contexts";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRefresh } from "@fortawesome/free-solid-svg-icons";
+import { faUnlock } from "@fortawesome/free-solid-svg-icons/faUnlock";
 
 export default function App() {
   const answer = "REACT";
@@ -17,7 +20,7 @@ export default function App() {
   const [cursor, setCursor] = useState<Position>([0, 0]);
 
   const handleBackspace = useCallback(() => {
-    const currentLetter = words[cursor[0]][cursor[1]]
+    const currentLetter = words[cursor[0]][cursor[1]];
     // Prevent backspacing beyond first letter
     if (cursor[1] === 0 && !currentLetter) {
       return;
@@ -99,9 +102,21 @@ export default function App() {
       </header>
       <CursorContext.Provider value={{ cursor, setCursor }}>
         <section className="p-4 relative">
-          <section className="absolute -left-60 w-1/2 p-4 bg-sky-500/40 text-sky-800 rounded">
-            <p>Guess the 5-letter word</p>
-            <p>Hit ENTER to confirm</p>
+          <section className="absolute -left-60 w-1/2 flex flex-col gap-8">
+            <div className="p-4 bg-sky-500/40 text-sky-800 rounded">
+              <p>Guess the 5-letter word</p>
+              <p>Hit ENTER to confirm</p>
+            </div>
+            <div className="flex flex-col gap-2 items-start">
+              <button className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400">
+                <FontAwesomeIcon icon={faRefresh} />
+                Restart
+              </button>
+              <button className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400">
+                <FontAwesomeIcon icon={faUnlock} />
+                Reveal solution
+              </button>
+            </div>
           </section>
           <Grid words={words} gradeHistory={gradeHistory} />
         </section>
