@@ -9,10 +9,11 @@ export default function App() {
     Array.from({ length: 5 }, () => "")
   );
   const initialGrades = Array.from({ length: 6 }, () =>
-    Array.from({ length: 5 }, () => 0)
+    Array.from({ length: 5 }, () => null)
   );
   const [words, setWords] = useState(initialWords);
-  const [gradeHistory, setGradeHistory] = useState(initialGrades);
+  const [gradeHistory, setGradeHistory] =
+    useState<(number | null)[][]>(initialGrades);
   const [cursor, setCursor] = useState<Position>([0, 0]);
 
   const handleBackspace = useCallback(() => {
@@ -45,10 +46,9 @@ export default function App() {
       newGradeHistory[cursor[0]] = grades;
       return newGradeHistory;
     });
-    console.log(gradeHistory);
     // Go to first cell of next row
     setCursor((prevCursor) => [prevCursor[0] + 1, 0]);
-  }, [cursor, words, gradeHistory]);
+  }, [cursor, words]);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
@@ -104,7 +104,7 @@ export default function App() {
 
 type GridProps = {
   words: string[][];
-  gradeHistory: number[][];
+  gradeHistory: (number | null)[][];
 };
 
 function Grid({ words, gradeHistory }: GridProps) {
@@ -127,7 +127,7 @@ function Grid({ words, gradeHistory }: GridProps) {
 type RowProps = {
   rowId: number;
   letters: string[];
-  grades: number[];
+  grades: (number | null)[];
 };
 
 function Row({ rowId, letters, grades }: RowProps) {
@@ -152,10 +152,10 @@ type CellProps = {
   rowId: number;
   colId: number;
   letter: string;
-  grade: number;
+  grade: number | null;
 };
 
-function Cell({ rowId, colId, letter }: CellProps) {
+function Cell({ rowId, colId, letter, grade }: CellProps) {
   const { cursor, setCursor } = useContext(CursorContext) as CursorState;
   const isFocused = cursor[0] === rowId && cursor[1] === colId;
   const isCurrentRow = cursor[0] === rowId;
@@ -168,12 +168,16 @@ function Cell({ rowId, colId, letter }: CellProps) {
     setCursor([rowId, colId]);
   };
 
+  const gradeColors = ["bg-slate-400", "bg-yellow-500", "bg-green-500"];
+  const gradeColor = grade !== null ? gradeColors[grade] : "bg-slate-100";
+
   return (
     <div
       onClick={handleClick}
-      className={`font-semibold text-xl rounded-md shadow w-20 h-20 bg-slate-100 flex justify-center items-center ${
+      className={`font-semibold text-xl rounded-md shadow w-20 h-20 flex justify-center items-center ${
         isFocused && "shadow-slate-400 shadow-md"
-      } ${isCurrentRow && "hover:shadow-slate-400 hover:shadow-md"}`}
+      } ${isCurrentRow && "hover:shadow-slate-400 hover:shadow-md"} 
+      ${gradeColor}`}
     >
       {letter}
     </div>
