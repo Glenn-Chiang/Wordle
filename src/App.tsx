@@ -4,7 +4,7 @@ import { CursorContext, Position, WonContext } from "./contexts";
 
 import { RestartButton, RevealButton } from "./components/buttons";
 import Grid from "./components/Grid";
-import WinModal from "./components/WinModal";
+import ResultModal from "./components/ResultModal";
 
 export default function App() {
   const answer = "REACT";
@@ -122,16 +122,18 @@ export default function App() {
   }, [cursor, handleBackspace, handleEnter, won]);
 
   const handleReveal = () => {
-    setWords(prevWords => {
-      const newWords = prevWords.slice()
-      newWords[cursor[0]] = answer.split('')
-      return newWords
-    })
-    setGradeHistory(prevGradeHistory => {
-      const newGradeHistory = prevGradeHistory.slice()
-      newGradeHistory[cursor[0]] = Array.from({length: 5}, () => 3)
-      return newGradeHistory
-    })
+    setWords((prevWords) => {
+      const newWords = prevWords.slice();
+      newWords[cursor[0]] = answer.split("");
+      return newWords;
+    });
+    setGradeHistory((prevGradeHistory) => {
+      const newGradeHistory = prevGradeHistory.slice();
+      newGradeHistory[cursor[0]] = Array.from({ length: 5 }, () => 3);
+      return newGradeHistory;
+    });
+    setWon(false);
+    setModalIsVisible(true);
   };
 
   return (
@@ -155,7 +157,11 @@ export default function App() {
             <Grid words={words} gradeHistory={gradeHistory} />
           </section>
           {modalIsVisible && (
-            <WinModal answer={answer} close={() => setModalIsVisible(false)} />
+            <ResultModal
+              won={won}
+              answer={answer}
+              close={() => setModalIsVisible(false)}
+            />
           )}
         </CursorContext.Provider>
       </WonContext.Provider>
