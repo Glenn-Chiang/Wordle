@@ -29,6 +29,9 @@ export default function App() {
 
       // Handle backspace
       if (key === "Backspace") {
+        if (cursor[1] === 0) {
+          return
+        }
         setWords((prevWords) => {
           const newWords = prevWords.slice();
           newWords[cursor[0]][cursor[1] - 1] = "";
@@ -45,7 +48,7 @@ export default function App() {
       if (!/^[a-zA-Z]$/.test(key)) {
         return;
       }
-      if (cursor[1] > 5) {
+      if (cursor[1] >= 5) {
         return;
       }
 
