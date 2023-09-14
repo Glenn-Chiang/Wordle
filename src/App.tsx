@@ -54,7 +54,7 @@ export default function App() {
 
       setWords((prevWords) => {
         const newWords = prevWords.slice();
-        newWords[cursor[0]][cursor[1]] = key;
+        newWords[cursor[0]][cursor[1]] = key.toUpperCase();
         return newWords;
       });
       setCursor((prevCursor) => {
