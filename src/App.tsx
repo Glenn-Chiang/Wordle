@@ -1,4 +1,10 @@
-import { useState, useContext, createContext, useEffect } from "react";
+import {
+  useState,
+  useContext,
+  createContext,
+  useEffect,
+  useCallback,
+} from "react";
 
 const WordsContext = createContext<WordsState | undefined>(undefined);
 
@@ -23,26 +29,31 @@ export default function App() {
   const [words, setWords] = useState(initialWords);
   const [cursor, setCursor] = useState<Position>([0, 0]);
 
+  const handleBackspace = useCallback(() => {
+    if (cursor[1] === 0) {
+      return;
+    }
+    setWords((prevWords) => {
+      const newWords = prevWords.slice();
+      newWords[cursor[0]][cursor[1] - 1] = "";
+      return newWords;
+    });
+    setCursor((prevCursor) => {
+      const newCursor = prevCursor.slice() as Position;
+      newCursor[1] = prevCursor[1] - 1;
+      return newCursor;
+    });
+    return;
+  }, [cursor]);
+
+  
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
       const key = event.key;
 
       // Handle backspace
       if (key === "Backspace") {
-        if (cursor[1] === 0) {
-          return
-        }
-        setWords((prevWords) => {
-          const newWords = prevWords.slice();
-          newWords[cursor[0]][cursor[1] - 1] = "";
-          return newWords;
-        });
-        setCursor((prevCursor) => {
-          const newCursor = prevCursor.slice() as Position;
-          newCursor[1] = prevCursor[1] - 1;
-          return newCursor;
-        });
-        return;
+        handleBackspace();
       }
 
       if (!/^[a-zA-Z]$/.test(key)) {
@@ -66,7 +77,7 @@ export default function App() {
     document.addEventListener("keydown", handleKeydown);
 
     return () => document.removeEventListener("keydown", handleKeydown);
-  }, [cursor]);
+  }, [cursor, handleBackspace]);
 
   return (
     <main className="flex flex-col items-center">
@@ -76,9 +87,10 @@ export default function App() {
       <WordsContext.Provider value={{ words, setWords }}>
         <CursorContext.Provider value={{ cursor, setCursor }}>
           <section className="p-4 relative">
-            <p className="absolute -left-60 p-4 bg-sky-500/40 text-sky-800 rounded">
-              Guess the 5-letter word
-            </p>
+            <section className="absolute -left-60 w-1/2 p-4 bg-sky-500/40 text-sky-800 rounded">
+              <p>Guess the 5-letter word</p>
+              <p>Hit ENTER to confirm</p>
+            </section>
             <Grid words={words} />
           </section>
         </CursorContext.Provider>
