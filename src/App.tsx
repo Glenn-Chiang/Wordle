@@ -26,6 +26,13 @@ export default function App() {
   const [won, setWon] = useState(false);
   const [modalIsVisible, setModalIsVisible] = useState(false);
 
+  const handleRestart = () => {
+    setWords(initialWords);
+    setGradeHistory(initialGrades);
+    setCursor([0, 0]);
+    setWon(false);
+  };
+
   const handleBackspace = useCallback(() => {
     const currentLetter = words[cursor[0]][cursor[1]];
     // Prevent backspacing beyond first letter
@@ -60,7 +67,7 @@ export default function App() {
 
     const grades = evaluateGuess(currentWord, answer);
     const guessIsCorrect = grades.every((grade) => grade === 2);
-    
+
     setGradeHistory((prevGradeHistory) => {
       const newGradeHistory = prevGradeHistory.slice();
       newGradeHistory[cursor[0]] = grades;
@@ -70,7 +77,7 @@ export default function App() {
     if (guessIsCorrect) {
       setWon(true);
       setModalIsVisible(true);
-      return
+      return;
     }
     // Go to first cell of next row
     setCursor((prevCursor) => [prevCursor[0] + 1, 0]);
@@ -115,6 +122,8 @@ export default function App() {
     return () => document.removeEventListener("keydown", handleKeydown);
   }, [cursor, handleBackspace, handleEnter, won]);
 
+  const handleReveal = () => {};
+
   return (
     <main className="flex flex-col items-center">
       <header className="shadow w-screen text-center p-4">
@@ -129,14 +138,8 @@ export default function App() {
                 <p>Hit ENTER to confirm</p>
               </div>
               <div className="flex flex-col gap-2 items-start">
-                <button className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400">
-                  <FontAwesomeIcon icon={faRefresh} />
-                  Restart
-                </button>
-                <button className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400">
-                  <FontAwesomeIcon icon={faUnlock} />
-                  Reveal solution
-                </button>
+                <RestartButton onClick={handleRestart} />
+                <RevealButton onClick={handleReveal} disabled={won} />
               </div>
             </section>
             <Grid words={words} gradeHistory={gradeHistory} />
@@ -147,6 +150,40 @@ export default function App() {
         </CursorContext.Provider>
       </WonContext.Provider>
     </main>
+  );
+}
+
+type RestartButtonProps = {
+  onClick: () => void;
+};
+
+function RestartButton({ onClick }: RestartButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400"
+    >
+      <FontAwesomeIcon icon={faRefresh} />
+      Restart
+    </button>
+  );
+}
+
+type RevealButtonProps = {
+  onClick: () => void;
+  disabled: boolean;
+};
+
+function RevealButton({ onClick, disabled }: RevealButtonProps) {
+  return (
+    <button
+      disabled={disabled}
+      onClick={onClick}
+      className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400"
+    >
+      <FontAwesomeIcon icon={faUnlock} />
+      Reveal solution
+    </button>
   );
 }
 
@@ -235,11 +272,11 @@ function Cell({ rowId, colId, letter, grade }: CellProps) {
   const isFocused = cursor[0] === rowId && cursor[1] === colId;
   const isCurrentRow = cursor[0] === rowId;
 
-  const playerHasWon = useContext(WonContext)
+  const playerHasWon = useContext(WonContext);
 
   const handleClick = () => {
     if (playerHasWon) {
-      return
+      return;
     }
     // Users can only click on another cell in the current row
     if (rowId !== cursor[0]) {
