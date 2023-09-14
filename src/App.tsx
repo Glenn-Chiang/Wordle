@@ -26,12 +26,29 @@ export default function App() {
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
       const key = event.key;
-      if (key.length !== 1) {
+
+      // Handle backspace
+      if (key === "Backspace") {
+        setWords((prevWords) => {
+          const newWords = prevWords.slice();
+          newWords[cursor[0]][cursor[1] - 1] = "";
+          return newWords;
+        });
+        setCursor((prevCursor) => {
+          const newCursor = prevCursor.slice() as Position;
+          newCursor[1] = prevCursor[1] - 1;
+          return newCursor;
+        });
+        return;
+      }
+
+      if (!/^[a-zA-Z]$/.test(key)) {
         return;
       }
       if (cursor[1] > 5) {
         return;
       }
+
       setWords((prevWords) => {
         const newWords = prevWords.slice();
         newWords[cursor[0]][cursor[1]] = key;
