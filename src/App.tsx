@@ -1,4 +1,4 @@
-import { useState, useContext, createContext } from "react";
+import { useState, useContext, createContext, useEffect } from "react";
 
 const WordsContext = createContext<WordsState | undefined>(undefined);
 
@@ -22,6 +22,31 @@ export default function App() {
   );
   const [words, setWords] = useState(initialWords);
   const [cursor, setCursor] = useState<Position>([0, 0]);
+
+  useEffect(() => {
+    const handleKeydown = (event: KeyboardEvent) => {
+      const key = event.key;
+      if (key.length !== 1) {
+        return;
+      }
+      if (cursor[1] > 5) {
+        return;
+      }
+      setWords((prevWords) => {
+        const newWords = prevWords.slice();
+        newWords[cursor[0]][cursor[1]] = key;
+        return newWords;
+      });
+      setCursor((prevCursor) => {
+        const newCursor = prevCursor.slice() as Position;
+        newCursor[1] = prevCursor[1] + 1;
+        return newCursor;
+      });
+    };
+    document.addEventListener("keydown", handleKeydown);
+
+    return () => document.removeEventListener("keydown", handleKeydown);
+  }, [cursor]);
 
   return (
     <main className="flex flex-col items-center">
@@ -90,9 +115,9 @@ function Cell({ rowId, colId, letter }: CellProps) {
   const handleClick = () => {
     // Users can only click on another cell in the current row
     if (rowId !== cursor[0]) {
-      return
+      return;
     }
-    setCursor([rowId, colId])
+    setCursor([rowId, colId]);
   };
 
   return (
