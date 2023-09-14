@@ -1,10 +1,16 @@
-import { createContext } from 'react';
+import React, { createContext } from 'react';
 
 const WordsContext = createContext<WordsState | undefined>(undefined);
 interface WordsState {
   words: string[][];
   setWords: React.Dispatch<React.SetStateAction<string[][]>>;
 }
+
+export interface GradesState {
+  grades: number[][];
+  setGrades: React.Dispatch<React.SetStateAction<number[][]>>
+}
+const GradesContext = createContext<GradesState | undefined>(undefined)
 
 export type Position = [number, number];
 export interface CursorState {
@@ -13,4 +19,5 @@ export interface CursorState {
 }
 const CursorContext = createContext<CursorState | undefined>(undefined);
 
-export { WordsContext, CursorContext };
+
+export { WordsContext, GradesContext, CursorContext };

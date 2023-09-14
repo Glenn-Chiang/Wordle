@@ -1,7 +1,6 @@
 import { useState, useContext, useEffect, useCallback } from "react";
 import { evaluateGuess } from "./mechanics";
-import { CursorState, Position } from "./contexts";
-import { CursorContext, WordsContext } from "./contexts";
+import { CursorState, CursorContext, Position } from "./contexts";
 
 export default function App() {
   const answer = "REACT";
@@ -9,7 +8,11 @@ export default function App() {
   const initialWords = Array.from({ length: 6 }, () =>
     Array.from({ length: 5 }, () => "")
   );
+  const initialGrades = Array.from({ length: 6 }, () =>
+    Array.from({ length: 5 }, () => 0)
+  );
   const [words, setWords] = useState(initialWords);
+  const [gradeHistory, setGradeHistory] = useState(initialGrades);
   const [cursor, setCursor] = useState<Position>([0, 0]);
 
   const handleBackspace = useCallback(() => {
@@ -37,11 +40,15 @@ export default function App() {
     }
 
     const grades = evaluateGuess(currentWord, answer);
-    console.log(grades);
-
+    setGradeHistory((prevGradeHistory) => {
+      const newGradeHistory = prevGradeHistory.slice();
+      newGradeHistory[cursor[0]] = grades;
+      return newGradeHistory;
+    });
+    console.log(gradeHistory);
     // Go to first cell of next row
     setCursor((prevCursor) => [prevCursor[0] + 1, 0]);
-  }, [cursor, words]);
+  }, [cursor, words, gradeHistory]);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
@@ -82,32 +89,36 @@ export default function App() {
       <header className="shadow w-screen text-center p-4">
         <h1>WORDLE</h1>
       </header>
-      <WordsContext.Provider value={{ words, setWords }}>
-        <CursorContext.Provider value={{ cursor, setCursor }}>
-          <section className="p-4 relative">
-            <section className="absolute -left-60 w-1/2 p-4 bg-sky-500/40 text-sky-800 rounded">
-              <p>Guess the 5-letter word</p>
-              <p>Hit ENTER to confirm</p>
-            </section>
-            <Grid words={words} />
+      <CursorContext.Provider value={{ cursor, setCursor }}>
+        <section className="p-4 relative">
+          <section className="absolute -left-60 w-1/2 p-4 bg-sky-500/40 text-sky-800 rounded">
+            <p>Guess the 5-letter word</p>
+            <p>Hit ENTER to confirm</p>
           </section>
-        </CursorContext.Provider>
-      </WordsContext.Provider>
+          <Grid words={words} gradeHistory={gradeHistory} />
+        </section>
+      </CursorContext.Provider>
     </main>
   );
 }
 
 type GridProps = {
   words: string[][];
+  gradeHistory: number[][];
 };
 
-function Grid({ words }: GridProps) {
+function Grid({ words, gradeHistory }: GridProps) {
   const numRows = 6;
   const rows = Array.from({ length: numRows }, () => null);
   return (
     <ul className="flex flex-col gap-8">
       {rows.map((_, index) => (
-        <Row key={index} rowId={index} letters={words[index]} />
+        <Row
+          key={index}
+          rowId={index}
+          letters={words[index]}
+          grades={gradeHistory[index]}
+        />
       ))}
     </ul>
   );
@@ -116,15 +127,22 @@ function Grid({ words }: GridProps) {
 type RowProps = {
   rowId: number;
   letters: string[];
+  grades: number[];
 };
 
-function Row({ rowId, letters }: RowProps) {
+function Row({ rowId, letters, grades }: RowProps) {
   const numCells = 5;
   const cells = Array.from({ length: numCells }, () => null);
   return (
     <li className="flex gap-2">
       {cells.map((_, index) => (
-        <Cell key={index} rowId={rowId} colId={index} letter={letters[index]} />
+        <Cell
+          key={index}
+          rowId={rowId}
+          colId={index}
+          letter={letters[index]}
+          grade={grades[index]}
+        />
       ))}
     </li>
   );
@@ -134,13 +152,13 @@ type CellProps = {
   rowId: number;
   colId: number;
   letter: string;
+  grade: number;
 };
 
 function Cell({ rowId, colId, letter }: CellProps) {
   const { cursor, setCursor } = useContext(CursorContext) as CursorState;
   const isFocused = cursor[0] === rowId && cursor[1] === colId;
   const isCurrentRow = cursor[0] === rowId;
-  // const {setWords}  = useContext(WordsContext) as WordsState
 
   const handleClick = () => {
     // Users can only click on another cell in the current row
