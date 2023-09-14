@@ -46,14 +46,25 @@ export default function App() {
     return;
   }, [cursor]);
 
-  
+  const handleEnter = useCallback(() => {
+    const currentWord = words[cursor[0]].join("");
+    // prevent users from entering incomplete guesses
+    if (currentWord.length !== 5) {
+      return;
+    }
+    console.log(currentWord);
+    setCursor((prevCursor) => [prevCursor[0] + 1, 0]); // Go to first cell of next row
+  }, [cursor, words]);
+
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
       const key = event.key;
 
-      // Handle backspace
       if (key === "Backspace") {
         handleBackspace();
+      }
+      if (key === "Enter") {
+        handleEnter();
       }
 
       if (!/^[a-zA-Z]$/.test(key)) {
@@ -77,7 +88,7 @@ export default function App() {
     document.addEventListener("keydown", handleKeydown);
 
     return () => document.removeEventListener("keydown", handleKeydown);
-  }, [cursor, handleBackspace]);
+  }, [cursor, handleBackspace, handleEnter]);
 
   return (
     <main className="flex flex-col items-center">
