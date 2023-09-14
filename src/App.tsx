@@ -5,6 +5,7 @@ import { CursorContext, Position, WonContext } from "./contexts";
 import { RestartButton, RevealButton } from "./components/buttons";
 import Grid from "./components/Grid";
 import ResultModal from "./components/ResultModal";
+import { GameState } from "./types";
 
 export default function App() {
   const answer = "REACT";
@@ -22,14 +23,14 @@ export default function App() {
     useState<(number | null)[][]>(initialGrades);
   const [cursor, setCursor] = useState<Position>([0, 0]);
 
-  const [won, setWon] = useState(false);
+  const [gameState, setGameState] = useState<GameState>("ongoing");
   const [modalIsVisible, setModalIsVisible] = useState(false);
 
   const handleRestart = () => {
     setWords(initialWords);
     setGradeHistory(initialGrades);
     setCursor([0, 0]);
-    setWon(false);
+    setGameState('ongoing')
   };
 
   const handleBackspace = useCallback(() => {
@@ -74,7 +75,7 @@ export default function App() {
     });
 
     if (guessIsCorrect) {
-      setWon(true);
+      setGameState('win')
       setModalIsVisible(true);
       return;
     }
@@ -84,7 +85,7 @@ export default function App() {
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
-      if (won) {
+      if (gameState === 'win') {
         // Ignore inputs after winning
         return;
       }
@@ -119,7 +120,7 @@ export default function App() {
     document.addEventListener("keydown", handleKeydown);
 
     return () => document.removeEventListener("keydown", handleKeydown);
-  }, [cursor, handleBackspace, handleEnter, won]);
+  }, [cursor, handleBackspace, handleEnter, gameState]);
 
   const handleReveal = () => {
     setWords((prevWords) => {
@@ -132,7 +133,7 @@ export default function App() {
       newGradeHistory[cursor[0]] = Array.from({ length: 5 }, () => 3);
       return newGradeHistory;
     });
-    setWon(false);
+    setGameState('lose')
     setModalIsVisible(true);
   };
 
@@ -141,7 +142,7 @@ export default function App() {
       <header className="shadow w-screen text-center p-4">
         <h1>WORDLE</h1>
       </header>
-      <WonContext.Provider value={won}>
+      <WonContext.Provider value={gameState}>
         <CursorContext.Provider value={{ cursor, setCursor }}>
           <section className="p-4 relative">
             <section className="absolute -left-60 w-1/2 flex flex-col gap-8">
@@ -151,14 +152,14 @@ export default function App() {
               </div>
               <div className="flex flex-col gap-2 items-start">
                 <RestartButton onClick={handleRestart} />
-                <RevealButton onClick={handleReveal} disabled={won} />
+                <RevealButton onClick={handleReveal} disabled={gameState !== 'ongoing'} />
               </div>
             </section>
             <Grid words={words} gradeHistory={gradeHistory} />
           </section>
           {modalIsVisible && (
             <ResultModal
-              won={won}
+              won={gameState === 'win'}
               answer={answer}
               close={() => setModalIsVisible(false)}
             />

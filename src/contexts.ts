@@ -1,4 +1,5 @@
 import React, { createContext } from 'react';
+import { GameState } from './types';
 
 export type Position = [number, number];
 export interface CursorState {
@@ -7,6 +8,6 @@ export interface CursorState {
 }
 const CursorContext = createContext<CursorState | undefined>(undefined);
 
-const WonContext = createContext(false)
+const GameStateContext = createContext<GameState>('ongoing')
 
-export { CursorContext, WonContext };
+export { CursorContext, GameStateContext as WonContext };
