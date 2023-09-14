@@ -17,21 +17,29 @@ export default function App() {
   const [cursor, setCursor] = useState<Position>([0, 0]);
 
   const handleBackspace = useCallback(() => {
-    if (cursor[1] === 0) {
+    const currentLetter = words[cursor[0]][cursor[1]]
+    // Prevent backspacing beyond first letter
+    if (cursor[1] === 0 && !currentLetter) {
       return;
     }
     setWords((prevWords) => {
       const newWords = prevWords.slice();
-      newWords[cursor[0]][cursor[1] - 1] = "";
+      if (currentLetter) {
+        newWords[cursor[0]][cursor[1]] = "";
+      } else {
+        newWords[cursor[0]][cursor[1] - 1] = "";
+      }
       return newWords;
     });
     setCursor((prevCursor) => {
       const newCursor = prevCursor.slice() as Position;
-      newCursor[1] = prevCursor[1] - 1;
+      if (!currentLetter) {
+        newCursor[1] = prevCursor[1] - 1;
+      }
       return newCursor;
     });
     return;
-  }, [cursor]);
+  }, [cursor, words]);
 
   const handleEnter = useCallback(() => {
     const currentWord = words[cursor[0]].join("");
