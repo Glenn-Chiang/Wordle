@@ -143,7 +143,7 @@ function Cell({ rowId, colId, letter }: CellProps) {
   return (
     <div
       onClick={handleClick}
-      className={`rounded-md shadow w-20 h-20 bg-slate-100 flex justify-center items-center ${
+      className={`font-semibold text-xl rounded-md shadow w-20 h-20 bg-slate-100 flex justify-center items-center ${
         isFocused && "shadow-slate-400 shadow-md"
       } ${isCurrentRow && "hover:shadow-slate-400 hover:shadow-md"}`}
     >
