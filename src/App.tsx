@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect, useCallback } from "react";
 import { evaluateGuess } from "./mechanics";
-import { CursorState, CursorContext, Position } from "./contexts";
+import { CursorState, CursorContext, Position, WonContext } from "./contexts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { faUnlock } from "@fortawesome/free-solid-svg-icons/faUnlock";
@@ -60,22 +60,29 @@ export default function App() {
 
     const grades = evaluateGuess(currentWord, answer);
     const guessIsCorrect = grades.every((grade) => grade === 2);
-    if (guessIsCorrect) {
-      setWon(true);
-      setModalIsVisible(true);
-    }
-
+    
     setGradeHistory((prevGradeHistory) => {
       const newGradeHistory = prevGradeHistory.slice();
       newGradeHistory[cursor[0]] = grades;
       return newGradeHistory;
     });
+
+    if (guessIsCorrect) {
+      setWon(true);
+      setModalIsVisible(true);
+      return
+    }
     // Go to first cell of next row
     setCursor((prevCursor) => [prevCursor[0] + 1, 0]);
   }, [cursor, words]);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
+      if (won) {
+        // Ignore inputs after winning
+        return;
+      }
+
       const key = event.key;
 
       if (key === "Backspace") {
@@ -106,37 +113,39 @@ export default function App() {
     document.addEventListener("keydown", handleKeydown);
 
     return () => document.removeEventListener("keydown", handleKeydown);
-  }, [cursor, handleBackspace, handleEnter]);
+  }, [cursor, handleBackspace, handleEnter, won]);
 
   return (
     <main className="flex flex-col items-center">
       <header className="shadow w-screen text-center p-4">
         <h1>WORDLE</h1>
       </header>
-      <CursorContext.Provider value={{ cursor, setCursor }}>
-        <section className="p-4 relative">
-          <section className="absolute -left-60 w-1/2 flex flex-col gap-8">
-            <div className="p-4 bg-sky-500/40 text-sky-800 rounded">
-              <p>Guess the 5-letter word</p>
-              <p>Hit ENTER to confirm</p>
-            </div>
-            <div className="flex flex-col gap-2 items-start">
-              <button className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400">
-                <FontAwesomeIcon icon={faRefresh} />
-                Restart
-              </button>
-              <button className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400">
-                <FontAwesomeIcon icon={faUnlock} />
-                Reveal solution
-              </button>
-            </div>
+      <WonContext.Provider value={won}>
+        <CursorContext.Provider value={{ cursor, setCursor }}>
+          <section className="p-4 relative">
+            <section className="absolute -left-60 w-1/2 flex flex-col gap-8">
+              <div className="p-4 bg-sky-500/40 text-sky-800 rounded">
+                <p>Guess the 5-letter word</p>
+                <p>Hit ENTER to confirm</p>
+              </div>
+              <div className="flex flex-col gap-2 items-start">
+                <button className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400">
+                  <FontAwesomeIcon icon={faRefresh} />
+                  Restart
+                </button>
+                <button className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400">
+                  <FontAwesomeIcon icon={faUnlock} />
+                  Reveal solution
+                </button>
+              </div>
+            </section>
+            <Grid words={words} gradeHistory={gradeHistory} />
           </section>
-          <Grid words={words} gradeHistory={gradeHistory} />
-        </section>
-        {modalIsVisible && (
-          <WinModal answer={answer} close={() => setModalIsVisible(false)} />
-        )}
-      </CursorContext.Provider>
+          {modalIsVisible && (
+            <WinModal answer={answer} close={() => setModalIsVisible(false)} />
+          )}
+        </CursorContext.Provider>
+      </WonContext.Provider>
     </main>
   );
 }
@@ -226,7 +235,12 @@ function Cell({ rowId, colId, letter, grade }: CellProps) {
   const isFocused = cursor[0] === rowId && cursor[1] === colId;
   const isCurrentRow = cursor[0] === rowId;
 
+  const playerHasWon = useContext(WonContext)
+
   const handleClick = () => {
+    if (playerHasWon) {
+      return
+    }
     // Users can only click on another cell in the current row
     if (rowId !== cursor[0]) {
       return;
