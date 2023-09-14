@@ -161,7 +161,7 @@ function RestartButton({ onClick }: RestartButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400"
+      className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:border-teal-400 hover:border"
     >
       <FontAwesomeIcon icon={faRefresh} />
       Restart
@@ -179,7 +179,9 @@ function RevealButton({ onClick, disabled }: RevealButtonProps) {
     <button
       disabled={disabled}
       onClick={onClick}
-      className="flex gap-2 items-center rounded transition w-full p-2 hover:text-teal-400 hover:shadow hover:shadow-teal-400"
+      className={`flex gap-2 items-center rounded transition w-full p-2  ${
+        disabled ? "text-slate-400" : "hover:border-teal-400 hover:border hover:text-teal-400"
+      }`}
     >
       <FontAwesomeIcon icon={faUnlock} />
       Reveal solution
