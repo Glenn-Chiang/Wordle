@@ -1,28 +1,11 @@
-import {
-  useState,
-  useContext,
-  createContext,
-  useEffect,
-  useCallback,
-} from "react";
-
-const WordsContext = createContext<WordsState | undefined>(undefined);
-
-interface WordsState {
-  words: string[][];
-  setWords: React.Dispatch<React.SetStateAction<string[][]>>;
-}
-
-type Position = [number, number];
-
-const CursorContext = createContext<CursorState | undefined>(undefined);
-
-interface CursorState {
-  cursor: Position;
-  setCursor: React.Dispatch<React.SetStateAction<Position>>;
-}
+import { useState, useContext, useEffect, useCallback } from "react";
+import { evaluateGuess } from "./mechanics";
+import { CursorState, Position } from "./contexts";
+import { CursorContext, WordsContext } from "./contexts";
 
 export default function App() {
+  const answer = "REACT";
+
   const initialWords = Array.from({ length: 6 }, () =>
     Array.from({ length: 5 }, () => "")
   );
@@ -52,8 +35,12 @@ export default function App() {
     if (currentWord.length !== 5) {
       return;
     }
-    console.log(currentWord);
-    setCursor((prevCursor) => [prevCursor[0] + 1, 0]); // Go to first cell of next row
+
+    const grades = evaluateGuess(currentWord, answer);
+    console.log(grades);
+
+    // Go to first cell of next row
+    setCursor((prevCursor) => [prevCursor[0] + 1, 0]);
   }, [cursor, words]);
 
   useEffect(() => {
