@@ -26,10 +26,10 @@ export default function Cell({ rowId, colId, letter, grade }: props) {
   };
 
   const gradeColors = [
-    "bg-slate-400",
-    "bg-yellow-500",
-    "bg-green-500",
-    "bg-sky-500",
+    "bg-slate-400 text-white",
+    "bg-yellow-500 text-white",
+    "bg-green-500 text-white",
+    "bg-sky-500 text-white",
   ];
   const color =
     grade !== null
@@ -39,7 +39,7 @@ export default function Cell({ rowId, colId, letter, grade }: props) {
   return (
     <div
       onClick={handleClick}
-      className={`text-white font-semibold text-2xl rounded-md shadow w-20 h-20 flex justify-center items-center ${
+      className={`font-semibold text-2xl rounded-md shadow w-20 h-20 flex justify-center items-center ${
         isFocused && "shadow-slate-400 shadow-md"
       } ${isCurrentRow && "hover:shadow-slate-400 hover:shadow-md"} 
       ${color}`}
