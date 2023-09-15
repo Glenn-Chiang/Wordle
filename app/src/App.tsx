@@ -1,17 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
-import { evaluateGuess, getWord } from "./mechanics";
+import { checkWordValidity, evaluateGuess, getWord } from "./mechanics";
 import { CursorContext, Position, GameStateContext } from "./contexts";
 
 import { RestartButton, RevealButton } from "./components/buttons";
 import Grid from "./components/Grid";
 import ResultModal from "./components/ResultModal";
 import { GameState } from "./types";
+import { messages } from "./messages";
+import { Message } from "./types";
 
 const numAttempts = 6;
 
 export default function App() {
-  const [answer, setAnswer] = useState(getWord().toUpperCase())
-  console.log(answer)
+  const [answer, setAnswer] = useState(getWord().toUpperCase());
+  console.log(answer);
   const initialWords = Array.from({ length: numAttempts }, () =>
     Array.from({ length: 5 }, () => "")
   );
@@ -27,13 +29,15 @@ export default function App() {
 
   const [gameState, setGameState] = useState<GameState>("ongoing");
   const [modalIsVisible, setModalIsVisible] = useState(false);
+  const [message, setMessage] = useState<Message | null>(null);
 
   const handleRestart = () => {
-    setAnswer(getWord().toUpperCase())
+    setAnswer(getWord().toUpperCase());
     setWords(initialWords);
     setGradeHistory(initialGrades);
     setCursor([0, 0]);
     setGameState("ongoing");
+    setMessage(null);
   };
 
   const handleBackspace = useCallback(() => {
@@ -68,6 +72,15 @@ export default function App() {
       return;
     }
 
+    // prevent users from entering nonsense words
+    const isValidWord = checkWordValidity(currentWord);
+    if (!isValidWord) {
+      setMessage(messages.invalid);
+      setTimeout(() => setMessage(null), 1000);
+      return;
+    }
+
+    // grade each letter
     const grades = evaluateGuess(currentWord, answer);
     const guessIsCorrect = grades.every((grade) => grade === 2);
 
@@ -80,6 +93,7 @@ export default function App() {
     if (guessIsCorrect) {
       setGameState("win");
       setModalIsVisible(true);
+      setMessage(messages.win);
       return;
     }
 
@@ -93,7 +107,7 @@ export default function App() {
     setCursor((prevCursor) => [prevCursor[0] + 1, 0]);
   }, [cursor, words, answer]);
 
-  console.log(cursor)
+  console.log(cursor);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
@@ -147,6 +161,7 @@ export default function App() {
     });
     setGameState("lose");
     setModalIsVisible(true);
+    setMessage(messages.lose);
   };
 
   return (
@@ -169,6 +184,11 @@ export default function App() {
                   disabled={gameState !== "ongoing"}
                 />
               </div>
+              {message && (
+                <div className={`p-4 rounded ${message.style}`}>
+                  {message.text}
+                </div>
+              )}
             </section>
             <Grid words={words} gradeHistory={gradeHistory} />
           </section>

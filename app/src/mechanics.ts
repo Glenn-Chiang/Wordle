@@ -8,6 +8,10 @@ const getWord = (): string => {
   return randomWord
 }
 
+const checkWordValidity = (word: string) => {
+  return words.includes(word.toLowerCase())
+}
+
 const getLetterCount = (word: string): { [letter: string]: number } => {
   const letterCount: { [letter: string]: number } = {};
   for (const letter of word) {
@@ -47,4 +51,4 @@ const evaluateGuess = (guess: string, answer: string) => {
   return grade;
 };
 
-export { getWord, evaluateGuess };
+export { getWord, evaluateGuess, checkWordValidity };

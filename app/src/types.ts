@@ -1,3 +1,7 @@
 type GameState = "win" | "lose" | "ongoing";
 
-export type { GameState };
+interface Message {
+  text: string;
+  style: string;
+}
+export type { GameState, Message };
