@@ -12,10 +12,10 @@ export default function Cell({ rowId, colId, letter, grade }: props) {
   const { cursor, setCursor } = useContext(CursorContext) as CursorState;
   const isFocused = cursor[0] === rowId && cursor[1] === colId;
   const isCurrentRow = cursor[0] === rowId;
-  const playerHasWon = useContext(GameStateContext);
+  const gameState = useContext(GameStateContext);
 
   const handleClick = () => {
-    if (playerHasWon) {
+    if (gameState !== 'ongoing') {
       return;
     }
     // Users can only click on another cell in the current row

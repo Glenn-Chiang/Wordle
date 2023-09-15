@@ -93,6 +93,8 @@ export default function App() {
     setCursor((prevCursor) => [prevCursor[0] + 1, 0]);
   }, [cursor, words, answer]);
 
+  console.log(cursor)
+
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
       if (gameState === "win") {
