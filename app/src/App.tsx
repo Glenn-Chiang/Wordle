@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { evaluateGuess } from "./mechanics";
+import { evaluateGuess, getWord } from "./mechanics";
 import { CursorContext, Position, GameStateContext } from "./contexts";
 
 import { RestartButton, RevealButton } from "./components/buttons";
@@ -10,8 +10,8 @@ import { GameState } from "./types";
 const numAttempts = 6;
 
 export default function App() {
-  const answer = "REACT";
-
+  const [answer, setAnswer] = useState(getWord().toUpperCase())
+  console.log(answer)
   const initialWords = Array.from({ length: numAttempts }, () =>
     Array.from({ length: 5 }, () => "")
   );
@@ -29,6 +29,7 @@ export default function App() {
   const [modalIsVisible, setModalIsVisible] = useState(false);
 
   const handleRestart = () => {
+    setAnswer(getWord().toUpperCase())
     setWords(initialWords);
     setGradeHistory(initialGrades);
     setCursor([0, 0]);

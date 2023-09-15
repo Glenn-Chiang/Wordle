@@ -1,4 +1,12 @@
+import words from './wordbank'
+
 const wordLength = 5;
+
+const getWord = (): string => {
+  const randomIndex = Math.floor(Math.random() * words.length)
+  const randomWord = words[randomIndex]
+  return randomWord
+}
 
 const getLetterCount = (word: string): { [letter: string]: number } => {
   const letterCount: { [letter: string]: number } = {};
@@ -39,4 +47,4 @@ const evaluateGuess = (guess: string, answer: string) => {
   return grade;
 };
 
-export { evaluateGuess };
+export { getWord, evaluateGuess };
