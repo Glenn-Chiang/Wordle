@@ -10,4 +10,4 @@ const CursorContext = createContext<CursorState | undefined>(undefined);
 
 const GameStateContext = createContext<GameState>('ongoing')
 
-export { CursorContext, GameStateContext as WonContext };
+export { CursorContext, GameStateContext };

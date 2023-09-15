@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { CursorContext, WonContext, CursorState } from "../contexts";
+import { CursorContext, GameStateContext, CursorState } from "../contexts";
 
 type props = {
   rowId: number;
@@ -12,7 +12,7 @@ export default function Cell({ rowId, colId, letter, grade }: props) {
   const { cursor, setCursor } = useContext(CursorContext) as CursorState;
   const isFocused = cursor[0] === rowId && cursor[1] === colId;
   const isCurrentRow = cursor[0] === rowId;
-  const playerHasWon = useContext(WonContext);
+  const playerHasWon = useContext(GameStateContext);
 
   const handleClick = () => {
     if (playerHasWon) {

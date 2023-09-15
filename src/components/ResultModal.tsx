@@ -19,7 +19,7 @@ export default function ResultModal({ won, answer, close }: props) {
             You Win!
           </h1>
         ) : (
-          <h1 className="text-2xl flex items-center gap-2 text-rose-500">
+          <h1 className="text-2xl flex items-center gap-2 text-slate-500">
             <FontAwesomeIcon icon={faSadCry} />
             You Lose!
           </h1>
