@@ -91,7 +91,7 @@ export default function App() {
 
     // Go to first cell of next row
     setCursor((prevCursor) => [prevCursor[0] + 1, 0]);
-  }, [cursor, words]);
+  }, [cursor, words, answer]);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
